@@ -1,0 +1,15 @@
+rsvp.rsvp_relation.*:
+  type: config_entity
+  label: 'RSVPRelation config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    uid:
+      type: integer
+      label: 'User ID'
+    nid:
+      type: integer
+      label: 'Node ID'
+    uuid:
+      type: string

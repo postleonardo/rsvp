@@ -1,0 +1,3 @@
+entity.rsvp_relation.add_form:
+  route_name: entity.rsvp_relation.add_form
+  title: 'Add RSVPRelation'
