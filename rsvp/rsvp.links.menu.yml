@@ -1,0 +1,8 @@
+
+# RSVPRelation menu items definition
+entity.rsvp_relation.collection:
+  title: 'RSVP list'
+  route_name: entity.rsvp_relation.collection
+  description: 'Lists relation between users and events.'
+  parent: system.admin_structure
+  weight: 99

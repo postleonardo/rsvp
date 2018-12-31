@@ -1,0 +1,14 @@
+{
+  "name": "drupal/rsvp",
+  "type": "drupal-module",
+  "description": "RSVP core functionality.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/rsvp",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/rsvp",
+    "source": "http://cgit.drupalcode.org/rsvp"
+  },
+  "require": { }
+}

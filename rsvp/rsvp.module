@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * @file
+ * Contains rsvp.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+define('RSVP_REPORT_TITLE', t('RSVP report'));
+
+/**
+ * Implements hook_help().
+ */
+function rsvp_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the rsvp module.
+    case 'help.page.rsvp':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('RSVP core functionality.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function rsvp_theme() {
+  return [
+    'node__event__full' => [
+      'template' => 'node/node--event--full',
+      'base hook' => 'node'
+    ],
+    'rsvp_form_message' => [
+      'template' => 'form/rsvp-form-message',
+      'variables' => [
+        'anonymous' => NULL,
+      ],
+    ]
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function rsvp_preprocess_node__event__full(&$variables) {
+  // If the user has already RSVP'd for this event or is anonymous, return message.
+  if (rsvp_relation_exists() || !\Drupal::currentUser()->isAuthenticated()) {
+    $variables['form'] = [
+      '#theme' => [
+        'rsvp_form_message'
+      ],
+    ];
+  }
+  else {
+    // Add RSVP form to event template.
+    $variables['form'] = \Drupal::formBuilder()->getForm('\Drupal\rsvp\Form\RSVPForm');
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function rsvp_preprocess_rsvp_form_message(&$variables) {
+  // Determine if user is logged in or not.
+  $variables['anonymous'] = \Drupal::currentUser()->isAuthenticated() ? FALSE : TRUE;
+}
+
+/**
+ * Get details about current user and node.
+ *
+ * @return array
+ *  Array containing current user ID and current node ID.
+ */
+function rsvp_retrieve_details() {
+  $node = \Drupal::request()->attributes->get('node');
+  $result['nid'] = $node->id();
+  $result['uid'] = \Drupal::currentUser()->id();
+
+  return $result;
+}
+
+/**
+ * Check if a relation exists between current user and event.
+ *
+ * @return bool
+ *  Returns TRUE if there's a relation.
+ */
+function rsvp_relation_exists() {
+  // Retrieve details about current user and node.
+  $details = rsvp_retrieve_details();
+
+  // Query RSVP entity and check if there's a relation between current user and node.
+  $query = \Drupal::entityQuery('rsvp_relation')
+    ->condition('uid', $details['uid'])
+    ->condition('nid', $details['nid']);
+
+  // Execute query.
+  $result = $query->execute();
+
+  // If there are no results, there's no relation, hence return FALSE; otherwise, return TRUE.
+  return !empty($result);
+}
+
+/**
+ * Check if current page is RSVP report page.
+ *
+ * @return bool
+ *  Returns TRUE if current page is the RSVP report.
+ */
+function rsvp_is_report_page() {
+  // Get route name.
+  $route_name = \Drupal::routeMatch()->getRouteName();
+
+  // Change title on RSVP report.
+  if ($route_name === 'entity.rsvp_relation.collection') {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements hook_preprocess_block().
+ */
+function rsvp_preprocess_block(&$variables) {
+  if (rsvp_is_report_page()) {
+    if ('page_title_block' === $variables['plugin_id']) {
+      $variables['content']['#title'] = RSVP_REPORT_TITLE;
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function rsvp_preprocess_html(&$variables) {
+  if (rsvp_is_report_page()) {
+    $variables['head_title']['title'] = RSVP_REPORT_TITLE;
+  }
+}
